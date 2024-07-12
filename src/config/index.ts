@@ -55,6 +55,8 @@ const config = {
   contactEmailAddress: String(process.env.CONTACT_EMAIL_ADDRESS || ""),
   /*  */
   appName: String(process.env.APP_NAME || ""),
+  /*  */
+  replicateApiToken: String(process.env.REPLICATE_API_TOKEN || ""),
 };
 
 export default config;

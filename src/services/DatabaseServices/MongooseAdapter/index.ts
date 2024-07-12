@@ -18,8 +18,13 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
     Entity: any,
     options: any = {}
   ): Promise<typeof model | null> => {
-    let newEntity = await models[entity].create(Entity);
-    return newEntity._doc;
+    try {
+      let newEntity = await models[entity].create(Entity);
+      return newEntity._doc;
+    } catch (e: any) {
+      console.log(e.message);
+      return null;
+    }
   };
 
   createMany = async (entity: any, entities: any, options: any) => {

@@ -82,7 +82,6 @@ export const signin = async (data: any) => {
 export const resetAuthPassword = async (credentials: any) => {
   RepositoryService;
   const { token } = credentials;
-  ({ token });
   const { email, cipheredPassword } = AuthServices.verifyKey(token);
   const newPassword = decryptData(
     cipheredPassword,

@@ -8,6 +8,7 @@ import {
   SocketService as SS,
   MailerService as MS,
   ChatService as CS,
+  CachingService as CCHS,
 } from "../services";
 
 const repositoryServices = {
@@ -16,11 +17,13 @@ const repositoryServices = {
 };
 
 export const TaskMessageService = new TMS();
-export const RepositoryService = repositoryServices.CQRS();
+export const RepositoryService = repositoryServices.DBS();
 export const AuthServices = new AS();
 export const SocketService: any = new SS();
 export const MailerService = new MS();
 export const ChatService = new CS();
+export const CachingService = new CCHS();
+
 const apiVersions = ["v1"];
 const uiVersions = ["v1"];
 

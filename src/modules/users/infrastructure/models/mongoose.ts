@@ -5,11 +5,7 @@ export interface IUser extends Document {
   username: string;
   email: string;
   password: string;
-  Certifications: Array<any>;
-  Institutions: Array<any>;
-  Projects: Array<any>;
-  Skills: Array<any>;
-  Notes: Array<any>;
+  Markmaps: Array<any>;
   privilege: string;
   avatar: string;
   createdAt: number;
@@ -45,11 +41,7 @@ const userSchema: any = new Schema<IUser>({
     required: true,
   },
   avatar: { type: String },
-  Certifications: [{ type: String, ref: "Certification" }],
-  Institutions: [{ type: String, ref: "Institution" }],
-  Projects: [{ type: String, ref: "Project" }],
-  Skills: [{ type: String, ref: "Skill" }],
-  Notes: [{ type: String, ref: "Note" }],
+  Markmaps: [{ type: String, ref: "Markmap" }],
   createdAt: {
     type: Number,
     required: true,

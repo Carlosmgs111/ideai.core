@@ -35,6 +35,7 @@ app
           "checkifisonline",
           "/ws/",
           "users/contact",
+          "markmap/transformfiletomarkmap"
         ],
         ["POST", "GET"],
       ],
