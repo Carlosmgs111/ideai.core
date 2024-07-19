@@ -19,13 +19,11 @@ export const grantUrls = (urlsGranted: string[][][]) => {
     let param;
     let toGrantUrl;
 
-    (() => {
-      const grantedUrl = url
-        .replace(`/api/${apiConfig.version}/`, "")
-        .replace(`/ui/${uiConfig.version}/`, "")
-        .split("/");
-      [toGrantUrl, query] = grantedUrl.join("/").split("?");
-    })();
+    const grantedUrl = url
+      .replace(`/api/${apiConfig.version}/`, "")
+      .replace(`/ui/${uiConfig.version}/`, "")
+      .split("/");
+    [toGrantUrl, query] = grantedUrl.join("/").split("?");
 
     let isGranted = false;
     for (var urlGranted of urlsGranted) {
@@ -35,7 +33,7 @@ export const grantUrls = (urlsGranted: string[][][]) => {
       grantedMethods = ["GET", ...grantedMethods];
       grantedPaths.map((grantedPath: any) => {
         if (grantedPath.includes(":")) {
-          // isGranted = true;
+          isGranted = true;
           // ({ grantedPath });
         }
       });

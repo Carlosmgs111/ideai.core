@@ -1,7 +1,6 @@
 import Replicate from "replicate";
 import pdf from "pdf-extraction";
 import fs from "fs";
-import { v4 as uuidv4 } from "uuid";
 import {
   CachingService,
   SocketService,
@@ -9,14 +8,12 @@ import {
 } from "../../../../config/dependencies";
 import { Markmap } from "../../../../modules/markmap/domain/entities/Markmap.entity";
 import { User } from "../../../../modules/users/domain/entity";
+import { resolve } from "path";
 
 const replicate = new Replicate();
 
-const markmapExample = `---
-title: markmap2
-markmap:
-  colorFreezeLevel: 2
----
+const markmapExample = `
+# Title
 
 ## Explanation
 - This is a large paragraph dedicated to explain something long and big, use this to add precise explanations.
@@ -55,6 +52,16 @@ console.log('hello, JavaScript')
 
 ![](/favicon.png)`;
 
+const prePrompt = `Ten presente estos puntos:
+- Conserva todo enlace externo. 
+- Conserva los ejemplos de codigo y ubiquelos dentro de
+\`\`\`
+code
+\`\`\`.
+- Devuelve el resultado todo en español.
+- Cuando se trate de un parrafo, siempre preceder con '- '.
+- Eliminar todo espacio en el inicio.`;
+
 export const transformFileToMarkmap = async (ctx: any) => {
   const { format, payload, uuid, clientSocketID } = ctx;
   const { title, pdfText } = await extractTextFromPdf({ pdfFile: payload });
@@ -67,22 +74,12 @@ export const transformFileToMarkmap = async (ctx: any) => {
     .replaceAll(":", ".");
 
   const prompt = `
-  Ten presente estos puntos:
-  - Conserva todo enlace externo. 
-  - Conserva los ejemplos de codigo y ubiquelos dentro de
-  \`\`\`
-  code
-  \`\`\`.
-  - Devuelve el resultado todo en español.
-  - Cuando se trate de un parrafo, siempre preceder con '- '.
-  - Eliminar todo espacio en el inicio.
+  ${prePrompt}
     
   ${pdfText}
-
   `;
   const tableName = "markmaps";
   const entityIndex = `${title}_${timestamp}`;
-  // const uuid = uuidv4();
 
   CachingService.addTable(tableName);
   CachingService.addData(tableName, entityIndex, {
@@ -105,6 +102,7 @@ export const transformFileToMarkmap = async (ctx: any) => {
         {
           uuid,
           text: data,
+          title,
         }
       );
       stream.write(data);
@@ -114,7 +112,6 @@ export const transformFileToMarkmap = async (ctx: any) => {
   stream.end();
 
   const cachedMarkmap = CachingService.getData(tableName, entityIndex);
-  console.log(CachingService.getDb());
   Markmap.createOne(RepositoryService, {
     uuid,
     title,
@@ -170,4 +167,25 @@ export const runPrompt = async (ctx: any) => {
     process.stdout.write(`${event}`);
     stream(`${event}`);
   }
+};
+
+export const getManyMarkmaps = async (ctx: any) => {
+  const { size = 10, page = 0 } = ctx;
+  return await Markmap.findAll(RepositoryService, { size, page });
+};
+
+/*  */
+
+export const updateMarkmap = async (ctx: any) => {
+  return new Promise((resolve: any, reject: any) => {
+    const { uuid, text } = ctx;
+    Markmap.load(RepositoryService, { credentials: { uuid } }).then(
+      (markmap: any) => {
+        markmap.update(RepositoryService, { text }).then((result: any) => {
+          console.log({ result });
+          resolve({ updated: result });
+        });
+      }
+    );
+  });
 };

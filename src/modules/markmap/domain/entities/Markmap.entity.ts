@@ -79,28 +79,28 @@ export class Markmap {
 
   update = async (RepositoryService: any, data: any) => {
     this.updatedAt = new Date().getTime();
-    const {
-      User: { name: createdBy },
-    } = await Markmap.find(RepositoryService, {
-      credentials: { uuid: this.uuid },
-      related: [["User", { attributes: ["name"], as: "User" }]],
-    });
-    data.createdBy, createdBy;
-    if (data.createdBy && createdBy !== data.createdBy) {
-      "Must change relationship".bgYellow;
-      await RepositoryService.unsetOneRelationship2One(
-        { markmaps: { uuid: this.uuid } },
-        [["User", { as: "User" }]]
-      );
-      await RepositoryService.setOneRelationship2One(
-        { markmaps: { uuid: this.uuid } },
-        [
-          {
-            user: { name: data.createdBy },
-          },
-        ]
-      );
-    }
+    // const {
+    //   User: { name: createdBy },
+    // } = await Markmap.find(RepositoryService, {
+    //   credentials: { uuid: this.uuid },
+    //   related: [["User", { attributes: ["name"], as: "User" }]],
+    // });
+    // data.createdBy, createdBy;
+    // if (data.createdBy && createdBy !== data.createdBy) {
+    //   "Must change relationship".bgYellow;
+    //   await RepositoryService.unsetOneRelationship2One(
+    //     { markmaps: { uuid: this.uuid } },
+    //     [["User", { as: "User" }]]
+    //   );
+    //   await RepositoryService.setOneRelationship2One(
+    //     { markmaps: { uuid: this.uuid } },
+    //     [
+    //       {
+    //         user: { name: data.createdBy },
+    //       },
+    //     ]
+    //   );
+    // }
 
     return await RepositoryService.updateOne(
       RepositoryService.entities.Markmap,

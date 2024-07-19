@@ -68,7 +68,7 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
         this.adapter(options),
         Entity
       );
-      return model._doc;
+      return model.acknowledged;
     } catch (e: any) {
       return boom.conflict("Entity with same attribute!");
     }
