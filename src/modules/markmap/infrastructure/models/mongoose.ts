@@ -1,5 +1,4 @@
 import { model, Schema, Document } from "mongoose";
-
 export interface IMarkmap extends Document {
   uuid: string;
   title: string;
@@ -43,4 +42,4 @@ const markmapScheme: any = new Schema({
   },
 });
 
-export default model<IMarkmap>("Markmap", markmapScheme);
+export const Markmap = model<IMarkmap>("Markmap", markmapScheme);

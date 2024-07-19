@@ -1,16 +1,30 @@
-import { connect, connection } from "./infrastructure";
-import models from "./infrastructure/models";
-import { model } from "mongoose";
+import config from "../../../config";
+import mongoose, { model } from "mongoose";
 import { labelCases, Mapfy, setEnums } from "../../../utils";
 import { filterAttrs } from "../../../utils";
 
 import boom from "@hapi/boom";
 export default class MongooseAdapter /* implements DatabaseAdapter */ {
   serviceDescription: string = "Mongoose Database Service Adapter";
-  Entity: any;
+  connection;
+  entities: any = {};
+  models: any = {};
 
-  constructor({}: any = {}) {
-    connect();
+  constructor({url}: any = {}) {
+    let test = true;
+    if (process.argv.includes("DEV") || process.argv.includes("PROD"))
+      test = false;
+    const localURL = test ? config.mongoDBTestUrl : config.mongoDBLocalUrl;
+    mongoose.connect(localURL || config.mongoDBAtlasURL || "");
+    const { connection } = mongoose;
+    this.connection = connection;
+    connection.once("open", () => {
+      ("Mongodb connection stablished");
+    });
+
+    connection.on("error", (err) => {
+      process.exit(0);
+    });
   }
 
   createOne = async (
@@ -19,7 +33,7 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
     options: any = {}
   ): Promise<typeof model | null> => {
     try {
-      let newEntity = await models[entity].create(Entity);
+      let newEntity = await this.models[entity].create(Entity);
       return newEntity._doc;
     } catch (e: any) {
       console.log(e.message);
@@ -28,13 +42,13 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
   };
 
   createMany = async (entity: any, entities: any, options: any) => {
-    const entitiesCreated = await models[entity].insertMany(entities);
+    const entitiesCreated = await this.models[entity].insertMany(entities);
     return entitiesCreated.map((e: any) => ({ ...e._doc }));
   };
 
   findAll = async (entity: any, options: any) => {
     const { size = 100, page = 0, related = [] } = options;
-    const entities = await models[entity]
+    const entities = await this.models[entity]
       .find(this.adapter(options))
       .populate(this.getPopulateMap(related))
       .limit(Number(size))
@@ -47,7 +61,7 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
   findOne = async (entity: any, options: any) => {
     const { credentials, related = [] } = options;
     if (!credentials) throw boom.conflict("Idexation must be provided!");
-    const entityFounded = await models[entity]
+    const entityFounded = await this.models[entity]
       .findOne(credentials)
       .populate(this.getPopulateMap(related));
     if (!entityFounded) return null;
@@ -59,12 +73,12 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
       throw boom.forbidden(
         "Must supply credentials for find and delete entity!"
       );
-    return await models[entity].deleteOne(this.adapter(options));
+    return await this.models[entity].deleteOne(this.adapter(options));
   };
 
   updateOne = async (entity: any, Entity: any, options: any) => {
     try {
-      const model = await models[entity].updateOne(
+      const model = await this.models[entity].updateOne(
         this.adapter(options),
         Entity
       );
@@ -154,24 +168,30 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
     const mainLabel = Mapfy(entity).keys().next().value;
     const mainQuery = Mapfy(entity).values().next().value;
 
-    const { _id } = await models[labelCases(mainLabel).CS].findOne(mainQuery, {
-      select: "_id",
-    });
+    const { _id } = await this.models[labelCases(mainLabel).CS].findOne(
+      mainQuery,
+      {
+        select: "_id",
+      }
+    );
 
     for (let ref of refs) {
       const key = Mapfy(ref).keys().next().value;
       const value = Mapfy(ref).values().next().value;
-      const referenced = await models[labelCases(key).CS].findOne(value);
+      const referenced = await this.models[labelCases(key).CS].findOne(value);
       relations2One[labelCases(key).CS] = referenced._id;
 
-      await models[labelCases(key).CS].updateOne(value, {
+      await this.models[labelCases(key).CS].updateOne(value, {
         [labelCases(mainLabel).CP]: [
           ...referenced[labelCases(mainLabel).CP],
           _id,
         ],
       });
     }
-    await models[labelCases(mainLabel).CS].updateOne(mainQuery, relations2One);
+    await this.models[labelCases(mainLabel).CS].updateOne(
+      mainQuery,
+      relations2One
+    );
     return { ...entity, ...relations2One };
   };
 
@@ -180,19 +200,19 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
     const mainLabel = Mapfy(entity).keys().next().value;
     const mainQuery = Mapfy(entity).values().next().value;
     const relations2One: any = {};
-    const Entity = await models[labelCases(mainLabel).CS]
+    const Entity = await this.models[labelCases(mainLabel).CS]
       .findOne(mainQuery)
       .populate(this.getPopulateMap(refs, true));
     for (let ref of refs) {
       const [label] = ref;
       relations2One[labelCases(label).CS] = "";
       const referenced = (
-        await models[labelCases(label).CS]
+        await this.models[labelCases(label).CS]
           .findOne(Entity[labelCases(label).CS])
           .select(labelCases(mainLabel).CP)
       )[labelCases(mainLabel).CP];
 
-      await models[labelCases(label).CS].updateOne(
+      await this.models[labelCases(label).CS].updateOne(
         Entity[labelCases(label).CS],
         {
           [labelCases(mainLabel).CP]: [
@@ -211,8 +231,10 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
     const toLabel = Mapfy(to).keys().next().value;
     const toQuery = Mapfy(to).values().next().value;
 
-    const fromModel = await models[labelCases(fromLabel).CS].findOne(fromQuery);
-    const toModel = await models[labelCases(toLabel).CS].findOne(toQuery);
+    const fromModel = await this.models[labelCases(fromLabel).CS].findOne(
+      fromQuery
+    );
+    const toModel = await this.models[labelCases(toLabel).CS].findOne(toQuery);
     const fromRelated = fromModel[labelCases(toLabel).CP];
     const fromRelatedIndex = fromModel[labelCases(toLabel).CP].indexOf(
       toModel._id
@@ -261,23 +283,28 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
   };
 
   private removeAttribute = async (entity: any, options: any) => {
-    await models[entity].update({}, { $unset: options });
+    await this.models[entity].update({}, { $unset: options });
   };
 
-  entities = setEnums(Object.entries(models).flatMap((m: any) => m[0]));
-
   close = async () => {
-    await connection.close();
+    await this.connection.close();
   };
 
   dropAllEntities = async () => {
     // await connection.dropDatabase();
-    Mapfy(models).forEach((model: any) => {
+    Mapfy(this.models).forEach((model: any) => {
       model.deleteMany({}, (err: any) => {
         if (err) {
           console.error(err);
         }
       });
     });
+  };
+
+  addModel = (modelName: any, model: any) => {
+    this.models[modelName] = model;
+    this.entities = setEnums(
+      Object.entries(this.models).flatMap((m: any) => m[0])
+    );
   };
 }

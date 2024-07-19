@@ -8,7 +8,6 @@ import {
 } from "../../../../config/dependencies";
 import { Markmap } from "../../../../modules/markmap/domain/entities/Markmap.entity";
 import { User } from "../../../../modules/users/domain/entity";
-import { resolve } from "path";
 
 const replicate = new Replicate();
 
