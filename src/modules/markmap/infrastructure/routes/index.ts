@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { RESTAPIService, apiConfig } from "../../../../config/dependencies";
 import { expressHandlerAdapter } from "../../../../adapters/apis/express";
 import {
   transformFileToMarkmap,
@@ -6,9 +6,7 @@ import {
   updateMarkmap,
 } from "../../../../modules/markmap/application/use_cases";
 
-const router = Router();
-
-export default router
+export default RESTAPIService.addPath()
   .post(
     "/transformfiletomarkmap",
     expressHandlerAdapter(transformFileToMarkmap)

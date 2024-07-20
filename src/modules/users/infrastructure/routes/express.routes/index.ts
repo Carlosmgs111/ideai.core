@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { RESTAPIService } from "../../../../../config/dependencies";
 import passwordRoutes from "./password.routes";
 // import {
 //   registerUser,
@@ -15,12 +15,10 @@ import {
   getUserSchema,
   updateUserSchema,
 } from "../../../../../infrastructure/schemas/user.schema";
-import { validatorHandler } from "../../../../../infrastructure/api/express/middlewares/validator.handler";
+// import { validatorHandler } from "../../../../../infrastructure/api/express/middlewares/validator.handler";
 import { expressHandlerAdapter } from "../../../../../adapters/apis/express";
 
-const router = Router();
-
-export default router
+export default RESTAPIService.addPath()
   .get(
     "/",
     expressHandlerAdapter(() => {})

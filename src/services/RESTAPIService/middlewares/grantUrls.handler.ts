@@ -1,5 +1,5 @@
 import { authMiddleware } from "./auth.handler";
-import { apiConfig, uiConfig } from "../../../../config/dependencies";
+import { apiConfig, uiConfig } from "../../../config/dependencies";
 
 export const grantUrls = (urlsGranted: string[][][]) => {
   const urls = [

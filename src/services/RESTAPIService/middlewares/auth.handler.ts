@@ -1,7 +1,7 @@
 import boom from "@hapi/boom";
-import config from "../../../../config";
+import config from "../../../config";
 import { SignJWT, jwtVerify, decodeJwt } from "jose";
-import { load } from "../../../../modules/users/application/use_cases";
+import { load } from "../../../modules/users/application/use_cases";
 import url from "url";
 
 interface UserJwtPayload {

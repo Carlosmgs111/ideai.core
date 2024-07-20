@@ -9,6 +9,7 @@ import {
   MailerService as MS,
   ChatService as CS,
   CachingService as CCHS,
+  RESTAPIService as RAS,
 } from "../services";
 
 const repositoryServices = {
@@ -23,6 +24,7 @@ export const SocketService: any = new SS();
 export const MailerService = new MS();
 export const ChatService = new CS();
 export const CachingService = new CCHS();
+export const RESTAPIService = new RAS();
 
 const apiVersions = ["v1"];
 const uiVersions = ["v1"];
