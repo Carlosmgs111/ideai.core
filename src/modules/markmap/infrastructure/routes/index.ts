@@ -6,10 +6,12 @@ import {
   updateMarkmap,
 } from "../../../../modules/markmap/application/use_cases";
 
-export default RESTAPIService.addPath()
-  .post(
-    "/transformfiletomarkmap",
-    expressHandlerAdapter(transformFileToMarkmap)
-  )
-  .put("/update", expressHandlerAdapter(updateMarkmap))
-  .get("/getmanymarkmaps", expressHandlerAdapter(getManyMarkmaps));
+export default RESTAPIService.addPath("/markmap", (router: any) => {
+  router
+    .post(
+      "/transformfiletomarkmap",
+      expressHandlerAdapter(transformFileToMarkmap)
+    )
+    .put("/update", expressHandlerAdapter(updateMarkmap))
+    .get("/getmanymarkmaps", expressHandlerAdapter(getManyMarkmaps));
+});

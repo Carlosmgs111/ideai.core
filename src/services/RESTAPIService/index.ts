@@ -44,6 +44,7 @@ export class RESTAPIService {
               "markmap/transformfiletomarkmap",
               "markmap/getmanymarkmaps",
               "markmap/update",
+              "users/getallusername",
             ],
             ["POST", "GET", "PUT"],
           ],
@@ -80,7 +81,11 @@ export class RESTAPIService {
     // });
   };
 
-  addPath = () => {
-    return Router();
+  addPath = (path: any, ...middlewares: [Function]) => {
+    const subPathRouter: any = Router();
+    middlewares.forEach((middleware: Function) => middleware(subPathRouter));
+    const pathRouter = Router();
+    pathRouter.use(path, subPathRouter);
+    return pathRouter;
   };
 }
