@@ -56,7 +56,7 @@ export class Markmap {
 
   static load = async (RepositoryService: any, options: any) => {
     const markmap = await Markmap.find(RepositoryService, options);
-    if (!markmap) throw new Error("Incorrect credentials!");
+    if (!markmap) throw new Error("Incorrect indexation!");
     const loadedMarkmap = new Markmap(markmap);
     return loadedMarkmap;
   };
@@ -82,7 +82,7 @@ export class Markmap {
     // const {
     //   User: { name: createdBy },
     // } = await Markmap.find(RepositoryService, {
-    //   credentials: { uuid: this.uuid },
+    //   indexation: { uuid: this.uuid },
     //   related: [["User", { attributes: ["name"], as: "User" }]],
     // });
     // data.createdBy, createdBy;
@@ -108,7 +108,7 @@ export class Markmap {
         updatedAt: this.updatedAt,
         ...filterAttrs(data, ["uuid", "user", "token"]),
       },
-      { credentials: { uuid: this.uuid } }
+      { indexation: { uuid: this.uuid } }
     );
   };
 
@@ -120,7 +120,7 @@ export class Markmap {
     return await RepositoryService.removeOne(
       RepositoryService.entities.Markmap,
       {
-        credentials: filterAttrs(
+        indexation: filterAttrs(
           getEntityProperties(this),
           ["title", "uuid"],
           false

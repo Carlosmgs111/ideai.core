@@ -1,16 +1,30 @@
 import config from "../../../config";
-import mongoose, { model } from "mongoose";
+import mongoose, { Model } from "mongoose";
 import { labelCases, Mapfy, setEnums } from "../../../utils";
 import { filterAttrs } from "../../../utils";
+
+interface models {
+  [key: string]: typeof Model;
+}
+interface entities {
+  [key: string]: string;
+}
+
+interface options {
+  size: number;
+  page: number;
+  related: [string];
+  indexation: object;
+}
 
 import boom from "@hapi/boom";
 export default class MongooseAdapter /* implements DatabaseAdapter */ {
   serviceDescription: string = "Mongoose Database Service Adapter";
-  connection;
-  entities: any = {};
-  models: any = {};
+  connection: typeof mongoose.connection;
+  entities: entities = {};
+  models: models = {};
 
-  constructor({url}: any = {}) {
+  constructor({ url }: any = {}) {
     let test = true;
     if (process.argv.includes("DEV") || process.argv.includes("PROD"))
       test = false;
@@ -28,10 +42,10 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
   }
 
   createOne = async (
-    entity: any,
+    entity: string,
     Entity: any,
     options: any = {}
-  ): Promise<typeof model | null> => {
+  ): Promise<typeof Model | null> => {
     try {
       let newEntity = await this.models[entity].create(Entity);
       return newEntity._doc;
@@ -41,46 +55,47 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
     }
   };
 
-  createMany = async (entity: any, entities: any, options: any) => {
+  createMany = async (entity: string, entities: [string], options: {}) => {
     const entitiesCreated = await this.models[entity].insertMany(entities);
     return entitiesCreated.map((e: any) => ({ ...e._doc }));
   };
 
-  findAll = async (entity: any, options: any) => {
+  findAll = async (entity: string, options: options) => {
     const { size = 100, page = 0, related = [] } = options;
     const entities = await this.models[entity]
       .find(this.adapter(options))
-      .populate(this.getPopulateMap(related))
+      .skip(Number(page * size))
       .limit(Number(size))
-      .skip(Number(page));
+      .populate(this.getPopulateMap(related));
+
     return entities.map((e: any) => ({
       ...filterAttrs(e._doc, ["_id", "__v"]),
     }));
   };
 
-  findOne = async (entity: any, options: any) => {
-    const { credentials, related = [] } = options;
-    if (!credentials) throw boom.conflict("Idexation must be provided!");
+  findOne = async (entity: string, options: options) => {
+    const { indexation, related = [] } = options;
+    if (!indexation) throw boom.conflict("Idexation must be provided!");
     const entityFounded = await this.models[entity]
-      .findOne(credentials)
+      .findOne(indexation)
       .populate(this.getPopulateMap(related));
     if (!entityFounded) return null;
     return filterAttrs(entityFounded._doc, ["_id", "__v"]);
   };
 
-  removeOne = async (entity: any, options: any) => {
-    if (!options.credentials)
+  removeOne = async (entity: string, options: options) => {
+    if (!options.indexation)
       throw boom.forbidden(
         "Must supply credentials for find and delete entity!"
       );
     return await this.models[entity].deleteOne(this.adapter(options));
   };
 
-  updateOne = async (entity: any, Entity: any, options: any) => {
+  updateOne = async (entity: string, data: any, options: options) => {
     try {
       const model = await this.models[entity].updateOne(
         this.adapter(options),
-        Entity
+        data
       );
       return model.acknowledged;
     } catch (e: any) {
@@ -163,10 +178,10 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
     return true;
   };
 
-  setOneRelationship2One = async (entity: any, refs: any) => {
+  setOneRelationship2One = async (entityObj: any, refs: any) => {
     const relations2One: any = {};
-    const mainLabel = Mapfy(entity).keys().next().value;
-    const mainQuery = Mapfy(entity).values().next().value;
+    const mainLabel = Mapfy(entityObj).keys().next().value;
+    const mainQuery = Mapfy(entityObj).values().next().value;
 
     const { _id } = await this.models[labelCases(mainLabel).CS].findOne(
       mainQuery,
@@ -192,13 +207,13 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
       mainQuery,
       relations2One
     );
-    return { ...entity, ...relations2One };
+    return { ...entityObj, ...relations2One };
   };
 
   // ? Pending to test
-  unsetOneRelationship2One = async (entity: any, refs: any) => {
-    const mainLabel = Mapfy(entity).keys().next().value;
-    const mainQuery = Mapfy(entity).values().next().value;
+  unsetOneRelationship2One = async (entityObj: any, refs: any) => {
+    const mainLabel = Mapfy(entityObj).keys().next().value;
+    const mainQuery = Mapfy(entityObj).values().next().value;
     const relations2One: any = {};
     const Entity = await this.models[labelCases(mainLabel).CS]
       .findOne(mainQuery)
@@ -222,7 +237,7 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
       );
     }
 
-    return { ...entity, ...relations2One };
+    return { ...entityObj, ...relations2One };
   };
 
   checkOneRelationshipN2N = async (from: any, to: any) => {
@@ -264,8 +279,8 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
   };
 
   private adapter = (options: any) => {
-    let { credentials, related } = options;
-    return credentials;
+    let { indexation, related } = options;
+    return indexation;
   };
 
   private getPopulateMap = (related: any, include_id: boolean = false) => {
@@ -283,7 +298,7 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
   };
 
   private removeAttribute = async (entity: any, options: any) => {
-    await this.models[entity].update({}, { $unset: options });
+    await this.models[entity].updateOne({}, { $unset: options });
   };
 
   close = async () => {
@@ -301,7 +316,7 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
     });
   };
 
-  addModel = (modelName: any, model: any) => {
+  addModel = (modelName: string, model: typeof Model) => {
     this.models[modelName] = model;
     this.entities = setEnums(
       Object.entries(this.models).flatMap((m: any) => m[0])

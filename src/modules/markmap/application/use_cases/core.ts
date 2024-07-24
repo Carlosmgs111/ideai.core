@@ -6,7 +6,7 @@ import {
 } from "../../../../config/dependencies";
 import Replicate from "replicate";
 import pdf from "pdf-extraction";
-import fs from "fs";
+// import fs from "fs";
 
 const replicate = new Replicate();
 
@@ -86,12 +86,12 @@ export const transformFileToMarkmap = async (ctx: any) => {
     title,
     text: "",
   });
-  const stream = fs.createWriteStream(`output/${title}_${timestamp}.txt`, {
-    flags: "a",
-  });
+  // const stream = fs.createWriteStream(`output/${title}_${timestamp}.txt`, {
+  //   flags: "a",
+  // });
   await runPrompt({
     prompt,
-    stream: (data: any) => {
+    onStream: (data: any) => {
       CachingService.appendStringData(tableName, entityIndex, {
         text: data,
       });
@@ -103,11 +103,11 @@ export const transformFileToMarkmap = async (ctx: any) => {
           title,
         }
       );
-      stream.write(data);
+      // stream.write(data);
     },
     clientSocketID,
   });
-  stream.end();
+  // stream.end();
 
   const cachedMarkmap = CachingService.getData(tableName, entityIndex);
   Markmap.createOne(RepositoryService, {
@@ -144,7 +144,7 @@ export const extractTextFromPdf = async (ctx: any) => {
 };
 
 export const runPrompt = async (ctx: any) => {
-  const { prompt, stream, clientSocketID } = ctx;
+  const { prompt, onStream, clientSocketID } = ctx;
   const input = {
     top_p: 0.9,
     prompt,
@@ -163,10 +163,10 @@ export const runPrompt = async (ctx: any) => {
     input,
   })) {
     process.stdout.write(`${event}`);
-    stream(`${event}`);
+    onStream(`${event}`);
   }
 };
 
 export const initChatWithMarkmap = (ctx: any) => {
-  
+  const { uuid } = ctx;
 };

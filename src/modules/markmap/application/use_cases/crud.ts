@@ -10,10 +10,9 @@ export const getManyMarkmaps = async (ctx: any) => {
 export const updateMarkmap = async (ctx: any) => {
   return new Promise((resolve: any, reject: any) => {
     const { uuid, text } = ctx;
-    Markmap.load(RepositoryService, { credentials: { uuid } }).then(
+    Markmap.load(RepositoryService, { indexation: { uuid } }).then(
       (markmap: any) => {
         markmap.update(RepositoryService, { text }).then((result: any) => {
-          console.log({ result });
           resolve({ updated: result });
         });
       }
