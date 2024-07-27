@@ -32,8 +32,8 @@ const config = {
   socketServicePort: Number(process.env.SOCKET_SERVICE_PORT || ""),
   /*  */
   // jwtResetPasswordSecret: String(process.env.JWT_RESET_PASSWORD_SECRET),
-  jwtExp: process.env.TOKEN_EXPIRATION,
-  test: process.env.test && String(process.env.test || ""),
+  jwtExp: String(process.env.TOKEN_EXPIRATION || ""),
+  test: String(process.env.test || ""),
   /*  */
   redisUrlProd: String(process.env.REDIS_URL_PROD || ""),
   redisUrlDev: String(process.env.REDIS_URL_DEV || ""),
@@ -49,8 +49,8 @@ const config = {
   imageServiceUrlProd: String(process.env.IMAGE_SERVICE_URL_PROD || ""),
   websocketPath: String(process.env.WEBSOCKET_PATH || ""),
   // MAILER CREDENTIALS
-  mailerEmailAddress: String(process.env.MAILER_EMAIL_ADDRESS) || "",
-  mailerEmailAppPassword: String(process.env.MAILER_EMAIL_APP_PASSWORD) || "",
+  mailerEmailAddress: String(process.env.MAILER_EMAIL_ADDRESS || ""),
+  mailerEmailAppPassword: String(process.env.MAILER_EMAIL_APP_PASSWORD || ""),
   // user
   contactEmailAddress: String(process.env.CONTACT_EMAIL_ADDRESS || ""),
   /*  */

@@ -1,5 +1,4 @@
 import { RESTAPIService, apiConfig } from "../../../../config/dependencies";
-import { expressHandlerAdapter } from "../../../../adapters/apis/express";
 import {
   transformFileToMarkmap,
   getManyMarkmaps,
@@ -10,8 +9,8 @@ export default RESTAPIService.addPath("/markmap", (router: any) => {
   router
     .post(
       "/transformfiletomarkmap",
-      expressHandlerAdapter(transformFileToMarkmap)
+      RESTAPIService.controllerAdapter(transformFileToMarkmap)
     )
-    .put("/update", expressHandlerAdapter(updateMarkmap))
-    .get("/getmanymarkmaps", expressHandlerAdapter(getManyMarkmaps));
+    .put("/update", RESTAPIService.controllerAdapter(updateMarkmap))
+    .get("/getmanymarkmaps", RESTAPIService.controllerAdapter(getManyMarkmaps));
 });

@@ -5,8 +5,7 @@ import {
   RepositoryService,
 } from "../../../../config/dependencies";
 import Replicate from "replicate";
-import pdf from "pdf-extraction";
-// import fs from "fs";
+import pdfExtraction from "pdf-extraction";
 
 const replicate = new Replicate();
 
@@ -52,24 +51,27 @@ console.log('hello, JavaScript')
 
 const prePrompt = `Ten presente estos puntos:
 - Conserva todo enlace externo. 
-- Conserva los ejemplos de codigo y ubiquelos dentro de
+- Conserva los ejemplos de codigo y ubicalos dentro de
 \`\`\`
 code
 \`\`\`.
 - Devuelve el resultado todo en español.
 - Cuando se trate de un parrafo, siempre preceder con '- '.
-- Eliminar todo espacio en el inicio.`;
+- Elimina todo espacio en el inicio.
+- Ignora todo indice de contenido.`;
 
 export const transformFileToMarkmap = async (ctx: any) => {
   const { format, payload, uuid, clientSocketID } = ctx;
-  const { title, pdfText } = await extractTextFromPdf({ pdfFile: payload });
-
+  let title = "";
+  const pdfText = await extractTextFromPdf({ pdfFile: payload });
   const timestamp = new Date()
     .toLocaleString()
     .replaceAll("/", ".")
     .replaceAll(" ", ".")
     .replaceAll(",", "")
     .replaceAll(":", ".");
+  // savePdfInTemp(payload, `./temp/pdfs/${title}_${timestamp}`)
+  // extractImagesFromPdf({ pdfFile: payload });
 
   const prompt = `
   ${prePrompt}
@@ -77,24 +79,38 @@ export const transformFileToMarkmap = async (ctx: any) => {
   ${pdfText}
   `;
   const tableName = "markmaps";
-  const entityIndex = `${title}_${timestamp}`;
 
   CachingService.addTable(tableName);
-  CachingService.addData(tableName, entityIndex, {
-    id: entityIndex,
+  CachingService.addData(tableName, uuid, {
+    id: uuid,
     uuid,
     title,
     text: "",
   });
-  // const stream = fs.createWriteStream(`output/${title}_${timestamp}.txt`, {
-  //   flags: "a",
-  // });
+
+  let initChunk = "";
+
   await runPrompt({
     prompt,
     onStream: (data: any) => {
-      CachingService.appendStringData(tableName, entityIndex, {
+      CachingService.appendStringData(tableName, uuid, {
         text: data,
       });
+      if (!title) {
+        initChunk += data;
+        if (initChunk.includes("##")) {
+          title = extractTitle(initChunk).trim();
+          SocketService.sockets[clientSocketID].emit(
+            `appendToMarkmapText$${uuid}`,
+            {
+              uuid,
+              text: initChunk,
+              title,
+            }
+          );
+        }
+        return;
+      }
       SocketService.sockets[clientSocketID].emit(
         `appendToMarkmapText$${uuid}`,
         {
@@ -103,13 +119,11 @@ export const transformFileToMarkmap = async (ctx: any) => {
           title,
         }
       );
-      // stream.write(data);
     },
     clientSocketID,
   });
-  // stream.end();
 
-  const cachedMarkmap = CachingService.getData(tableName, entityIndex);
+  const cachedMarkmap = CachingService.getData(tableName, uuid);
   Markmap.createOne(RepositoryService, {
     uuid,
     title,
@@ -120,27 +134,9 @@ export const transformFileToMarkmap = async (ctx: any) => {
 
 export const extractTextFromPdf = async (ctx: any) => {
   const { pdfFile } = ctx;
-
-  const extractTitle = (text: string) => {
-    const lines = text.split("\n");
-    for (const line of lines) {
-      const trimmedLine = line.trim();
-      if (trimmedLine) {
-        // Asume que el título está en mayúsculas y no es demasiado largo
-        if (
-          trimmedLine === trimmedLine.toUpperCase() &&
-          trimmedLine.length < 100
-        ) {
-          return trimmedLine;
-        }
-      }
-    }
-    // Si no se encuentra un título según las reglas, devolver la primera línea
-    return lines.length > 0 ? lines[0].trim() : null;
-  };
-  const { text: pdfText } = await pdf(Buffer.from(pdfFile, "base64"));
-  const title = extractTitle(pdfText);
-  return { title, pdfText };
+  const treatedPdf = await pdfExtraction(Buffer.from(pdfFile, "base64"));
+  const { text } = treatedPdf;
+  return text;
 };
 
 export const runPrompt = async (ctx: any) => {
@@ -169,4 +165,12 @@ export const runPrompt = async (ctx: any) => {
 
 export const initChatWithMarkmap = (ctx: any) => {
   const { uuid } = ctx;
+};
+
+export const extractTitle = (str: string) => {
+  const regex = /(?<=#)([\s\S]*?)(?=\n|$)/;
+  const match: any = str.match(regex);
+  if (!match) return "";
+  const title = match[1];
+  return title;
 };

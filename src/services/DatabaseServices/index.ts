@@ -1,9 +1,6 @@
-import SequelizeAdapter from "./SequelizeAdapter";
 import MongooseAdapter from "./MongooseAdapter";
-import { DatabaseAdapterType } from "./IDatabaseAdapter";
 
 export const Adapters: any = {
-  SequelizeAdapter,
   MongooseAdapter,
 };
 

@@ -2,6 +2,7 @@ import config from "../../../config";
 import mongoose, { Model } from "mongoose";
 import { labelCases, Mapfy, setEnums } from "../../../utils";
 import { filterAttrs } from "../../../utils";
+import { DatabaseAdapterType } from "../IDatabaseAdapter";
 
 interface models {
   [key: string]: typeof Model;
@@ -18,7 +19,7 @@ interface options {
 }
 
 import boom from "@hapi/boom";
-export default class MongooseAdapter /* implements DatabaseAdapter */ {
+export default class MongooseAdapter /* implements DatabaseAdapterType  */{
   serviceDescription: string = "Mongoose Database Service Adapter";
   connection: typeof mongoose.connection;
   entities: entities = {};
@@ -35,8 +36,7 @@ export default class MongooseAdapter /* implements DatabaseAdapter */ {
     connection.once("open", () => {
       ("Mongodb connection stablished");
     });
-
-    connection.on("error", (err) => {
+    connection.on("error", (err: any) => {
       process.exit(0);
     });
   }

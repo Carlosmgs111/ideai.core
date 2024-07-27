@@ -9,17 +9,6 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "baseUrl": ".",
-    "paths": {
-      "@modules/*": [
-        "src/modules/*",
-      ],
-      "@dependencies/*": [
-        "src/config/dependencies/*"
-      ],
-      "@services/*": [
-        "src/services/*"
-      ]
-    },
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
     /* Basic Options */
     // "incremental": true,                         /* Enable incremental compilation */

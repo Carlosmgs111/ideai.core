@@ -2,7 +2,6 @@ import { User } from "../../users/domain/entity";
 import {
   RepositoryService,
   AuthServices,
-  ChatService,
 } from "../../../config/dependencies";
 import { filterAttrs, decryptData } from "../../../utils";
 import config from "../../../config";
@@ -13,7 +12,6 @@ export const login = async (credentials: any) => {
     credentials,
     // related: [["Institution"], ["Certification"]],
   });
-  ChatService.setIsOnline(true);
   if (!account) throw new Error("The account doesn't exist!");
   let response = AuthServices.getAuthPackage({
     ...filterAttrs(
@@ -27,7 +25,6 @@ export const login = async (credentials: any) => {
 };
 
 export const logout = async (credentials?: any) => {
-  ChatService.setIsOnline(false);
   return { message: "Logout succesfully!" };
 };
 
@@ -49,8 +46,6 @@ export const signup = async (credentials: any) => {
   });
   return response;
 };
-
-export const checkIfIsOnline = () => ChatService.getIsOnline();
 
 export const unsubscribe = async (credentials: any) => {
   RepositoryService;

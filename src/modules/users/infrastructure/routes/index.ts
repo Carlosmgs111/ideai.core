@@ -16,14 +16,13 @@ import {
   updateUserSchema,
 } from "../../../../infrastructure/schemas/user.schema";
 // import { validatorHandler } from "../../../../../infrastructure/api/express/middlewares/validator.handler";
-import { expressHandlerAdapter } from "../../../../adapters/apis/express";
 
 export default RESTAPIService.addPath("/users", (router: any) => {
   router
     .get(
       "/",
-      expressHandlerAdapter(() => {})
+      RESTAPIService.controllerAdapter(() => {})
     )
-    .get("/getallusername", expressHandlerAdapter(getAllUsername))
+    .get("/getallusername", RESTAPIService.controllerAdapter(getAllUsername))
     .use("/password", passwordRoutes);
 });
