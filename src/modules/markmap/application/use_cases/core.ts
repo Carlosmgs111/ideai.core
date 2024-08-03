@@ -1,13 +1,9 @@
-import { Markmap } from "../../domain/entities/Markmap.entity";
-import {
-  CachingService,
-  SocketService,
-  RepositoryService,
-} from "../../../../config/dependencies";
-import Replicate from "replicate";
+import { CachingService, SocketService } from "../../../../config/dependencies";
+import { createNewMarkmap } from "./crud";
 import pdfExtraction from "pdf-extraction";
-
-const replicate = new Replicate();
+import { streamText } from "ai";
+import { createOpenAI as createGroq } from "@ai-sdk/openai";
+import config from "../../../../config";
 
 const markmapExample = `
 # Title
@@ -49,7 +45,8 @@ console.log('hello, JavaScript')
 
 ![](/favicon.png)`;
 
-const prePrompt = `Ten presente estos puntos:
+const prePrompt = `
+Ten presente estos puntos:
 - Conserva todo enlace externo. 
 - Conserva los ejemplos de codigo y ubicalos dentro de
 \`\`\`
@@ -120,11 +117,10 @@ export const transformFileToMarkmap = async (ctx: any) => {
         }
       );
     },
-    clientSocketID,
   });
 
   const cachedMarkmap = CachingService.getData(tableName, uuid);
-  Markmap.createOne(RepositoryService, {
+  createNewMarkmap({
     uuid,
     title,
     text: cachedMarkmap.text,
@@ -140,26 +136,28 @@ export const extractTextFromPdf = async (ctx: any) => {
 };
 
 export const runPrompt = async (ctx: any) => {
-  const { prompt, onStream, clientSocketID } = ctx;
-  const input = {
-    top_p: 0.9,
-    prompt,
-    system_prompt: `
-    Eres un experto analista que identifica y extrae la informacion mas relevante 
-    e importante y la condensa en formato MARKDOWN y MINDMAP, sigue el siguiente 
-    ejemplo escrito en MARKDOWN para saber como estructurar la respuesta, ten en
-    cuenta las anotaciones, asi sabras que hace cada conjunto de caracteres:
+  const { prompt, onStream } = ctx;
+  const system_prompt = `
+  Eres un experto analista que identifica y extrae la informacion mas relevante 
+  e importante y la condensa en formato MARKDOWN y MINDMAP, sigue el siguiente 
+  ejemplo escrito en MARKDOWN para saber como estructurar la respuesta, ten en
+  cuenta las anotaciones, asi sabras que hace cada conjunto de caracteres:
 
-    ${markmapExample}
-    `,
-    min_tokens: 0,
-    temperature: 0.6,
-  };
-  for await (const event of replicate.stream("meta/meta-llama-3-70b-instruct", {
-    input,
-  })) {
-    process.stdout.write(`${event}`);
-    onStream(`${event}`);
+  ${markmapExample}
+  `;
+  const groq = createGroq({
+    baseURL: "https://api.groq.com/openai/v1",
+    apiKey: config.groqApiKey,
+  });
+  const { textStream } = await streamText({
+    model: groq("llama-3.1-70b-versatile"),
+    system: system_prompt,
+    prompt,
+  });
+
+  for await (const textPart of textStream) {
+    process.stdout.write(`${textPart}`);
+    onStream(`${textPart}`);
   }
 };
 

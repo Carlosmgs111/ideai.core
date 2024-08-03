@@ -44,6 +44,7 @@ export class RESTAPIService {
               "markmap/transformfiletomarkmap",
               "markmap/getmanymarkmaps",
               "markmap/update",
+              "markmap/create",
               "users/getallusername",
             ],
             ["POST", "GET", "PUT"],

@@ -28,7 +28,9 @@
   "author": "Carlosmgs111",
   "license": "ISC",
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.40",
     "@hapi/boom": "^10.0.1",
+    "ai": "^3.3.0",
     "bcrypt": "^5.1.1",
     "colors": "^1.4.0",
     "cors": "^2.8.5",
@@ -46,7 +48,6 @@
     "path": "^0.12.7",
     "pdf-extraction": "^1.0.2",
     "pluralize": "^8.0.0",
-    "replicate": "^0.31.1",
     "sequelize": "^6.37.3",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
