@@ -1,4 +1,4 @@
-import { transformFileToMarkmap, initChatWithMarkmap } from "./core";
+import { transformFileToMarkmap, createUsingPrompt } from "./core";
 import {
   getManyMarkmaps,
   updateMarkmap,
@@ -10,7 +10,7 @@ export {
   getManyMarkmaps,
   updateMarkmap,
   transformFileToMarkmap,
-  initChatWithMarkmap,
   createNewMarkmap,
   deleteMarkmap,
+  createUsingPrompt,
 };

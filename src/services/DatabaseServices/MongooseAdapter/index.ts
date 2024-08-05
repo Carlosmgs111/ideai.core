@@ -45,13 +45,13 @@ export default class MongooseAdapter /* implements DatabaseAdapterType  */ {
     entity: string,
     Entity: any,
     options: any = {}
-  ): Promise<typeof Model | null> => {
+  ): Promise<{}> => {
     try {
-      let newEntity = await this.models[entity].create(Entity);
-      return newEntity._doc;
+      await this.models[entity].create(Entity);
+      return { created: true };
     } catch (e: any) {
       console.log(e.message);
-      return null;
+      return { created: false };
     }
   };
 
