@@ -19,7 +19,7 @@ interface options {
 }
 
 import boom from "@hapi/boom";
-export default class MongooseAdapter /* implements DatabaseAdapterType  */{
+export default class MongooseAdapter /* implements DatabaseAdapterType  */ {
   serviceDescription: string = "Mongoose Database Service Adapter";
   connection: typeof mongoose.connection;
   entities: entities = {};
@@ -88,7 +88,8 @@ export default class MongooseAdapter /* implements DatabaseAdapterType  */{
       throw boom.forbidden(
         "Must supply credentials for find and delete entity!"
       );
-    return await this.models[entity].deleteOne(this.adapter(options));
+    return (await this.models[entity].deleteOne(this.adapter(options)))
+      .acknowledged;
   };
 
   updateOne = async (entity: string, data: any, options: options) => {

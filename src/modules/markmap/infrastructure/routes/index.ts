@@ -4,14 +4,17 @@ import {
   getManyMarkmaps,
   updateMarkmap,
   createNewMarkmap,
+  deleteMarkmap,
 } from "../../../../modules/markmap/application/use_cases";
 
 const { controllerAdapter } = RESTAPIService;
 
 export default RESTAPIService.addPath("/markmap", (router: any) => {
   router
-    .post("/create", controllerAdapter(createNewMarkmap))
-    .post("/transformfiletomarkmap", controllerAdapter(transformFileToMarkmap))
-    .put("/update", controllerAdapter(updateMarkmap))
-    .get("/getmanymarkmaps", controllerAdapter(getManyMarkmaps));
+    .post(
+      "/transformfiletomarkmap",
+      RESTAPIService.controllerAdapter(transformFileToMarkmap)
+    )
+    .put("/update", RESTAPIService.controllerAdapter(updateMarkmap))
+    .get("/getmanymarkmaps", RESTAPIService.controllerAdapter(getManyMarkmaps));
 });

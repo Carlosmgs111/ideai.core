@@ -30,3 +30,16 @@ export const updateMarkmap = async (ctx: any) => {
     );
   });
 };
+
+export const deleteMarkmap = async (ctx: any) => {
+  return new Promise((resolve, reject) => {
+    const { uuid } = ctx;
+    Markmap.load(RepositoryService, { indexation: { uuid } }).then(
+      (markmap: any) => {
+        markmap.remove(RepositoryService).then((result: any) => {
+          resolve({ deleted: result });
+        });
+      }
+    );
+  });
+};

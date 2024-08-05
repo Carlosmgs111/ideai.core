@@ -86,6 +86,8 @@ export const transformFileToMarkmap = async (ctx: any) => {
   });
 
   let initChunk = "";
+  let buffer = "";
+  const minChunkSize = 400;
 
   await runPrompt({
     prompt,
@@ -108,14 +110,19 @@ export const transformFileToMarkmap = async (ctx: any) => {
         }
         return;
       }
-      SocketService.sockets[clientSocketID].emit(
-        `appendToMarkmapText$${uuid}`,
-        {
-          uuid,
-          text: data,
-          title,
-        }
-      );
+      buffer += data;
+      process.stdout.write(`${buffer}`);
+      if (buffer.length >= minChunkSize) {
+        SocketService.sockets[clientSocketID].emit(
+          `appendToMarkmapText$${uuid}`,
+          {
+            uuid,
+            text: buffer,
+            title,
+          }
+        );
+        buffer = "";
+      }
     },
   });
 
@@ -156,7 +163,6 @@ export const runPrompt = async (ctx: any) => {
   });
 
   for await (const textPart of textStream) {
-    process.stdout.write(`${textPart}`);
     onStream(`${textPart}`);
   }
 };
