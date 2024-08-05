@@ -113,10 +113,10 @@ export class Markmap {
   };
 
   remove = async (RepositoryService: any, options: any = {}) => {
-    await RepositoryService.unsetOneRelationship2One(
-      { markmaps: { uuid: this.uuid } },
-      [["User", { as: "User" }]]
-    );
+    // await RepositoryService.unsetOneRelationship2One(
+    //   { markmaps: { uuid: this.uuid } },
+    //   [["User", { as: "User" }]]
+    // );
     return await RepositoryService.removeOne(
       RepositoryService.entities.Markmap,
       {

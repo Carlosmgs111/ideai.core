@@ -11,4 +11,6 @@ export {
   updateMarkmap,
   transformFileToMarkmap,
   initChatWithMarkmap,
+  createNewMarkmap,
+  deleteMarkmap,
 };
