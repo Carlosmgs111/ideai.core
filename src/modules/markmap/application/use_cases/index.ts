@@ -1,4 +1,8 @@
-import { transformFileToMarkmap, createUsingPrompt } from "./core";
+import {
+  transformFileToMarkmap,
+  createUsingPrompt,
+  createUsingFileAndPrompt,
+} from "./core";
 import {
   getManyMarkmaps,
   updateMarkmap,
@@ -13,4 +17,5 @@ export {
   createNewMarkmap,
   deleteMarkmap,
   createUsingPrompt,
+  createUsingFileAndPrompt,
 };

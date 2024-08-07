@@ -45,7 +45,7 @@ console.log('hello, JavaScript')
 
 ![](/favicon.png)`;
 
-const prePrompt = `
+const prePromptUsingFile = `
 Ten presente estos puntos:
 - Conserva todo enlace externo. 
 - Conserva los ejemplos de codigo y ubicalos dentro de
@@ -58,34 +58,60 @@ code
 - Elimina todo espacio en el inicio.
 - Ignora todo indice de contenido.`;
 
+const prePrompt = `
+Ten presente estos puntos:
+- Cuando se trate de un parrafo, siempre preceder con '- '.
+- Elimina todo espacio en el inicio.
+- Asignar un titulo adecuado.
+- Buscaras y condensaras toda la informacion que encuentres sobre el tema. 
+`;
+
 export const transformFileToMarkmap = async (ctx: any) => {
   const { payload, uuid, clientSocketID } = ctx;
   const pdfText = await extractTextFromPdf({ pdfFile: payload });
   const prompt = `
-  ${prePrompt}
-    
+  ${prePromptUsingFile}
+  
   ${pdfText}
   `;
   return await presetRunPrompt({ prompt, uuid, clientSocketID });
 };
 
 export const createUsingPrompt = async (ctx: any) => {
-  const { prompt, uuid, clientSocketID, topics } = ctx;
-  const customPrompt = `
-  Buscaras y condensaras toda la informacion que encuentres sobre lo siguiente, 
-  ademas de asignar un titulo adecuado:
+  let { prompt, uuid, clientSocketID, topics } = ctx;
+  prompt = `
+  ${prePrompt}
+  
+  Tema:
+  ${prompt}
+  `;
+  return await presetRunPrompt({
+    prompt,
+    topics,
+    uuid,
+    clientSocketID,
+  });
+};
+
+export const createUsingFileAndPrompt = async (ctx: any) => {
+  let { prompt, file, uuid, clientSocketID }: any = ctx;
+  const pdfText = await extractTextFromPdf({ pdfFile: file });
+  prompt = `
+  ${prePromptUsingFile}
+  
+  ${pdfText}
   
   ${prompt}
-
-  ${topics ? `Guiate por los siguientes temas: ${topics}` : ""}
   `;
-  return await presetRunPrompt({ prompt: customPrompt, uuid, clientSocketID });
+  return await presetRunPrompt({ prompt, uuid, clientSocketID });
 };
 
 export const presetRunPrompt = async (ctx: any) => {
-  const { prompt, uuid, clientSocketID } = ctx;
+  const { prompt, uuid, clientSocketID, topics } = ctx;
   const system_prompt = `
-  Eres un experto analista que identifica y extrae la informacion mas relevante 
+  Eres un experto analista ${`en ${
+    topics ? topics : ""
+  }, `}que identifica y extrae la informacion mas relevante 
   e importante y la condensa en formato MARKDOWN y MINDMAP, sigue el siguiente 
   ejemplo escrito en MARKDOWN para saber como estructurar la respuesta, ten en
   cuenta las anotaciones, asi sabras que hace cada conjunto de caracteres:
