@@ -44,13 +44,14 @@ export class RESTAPIService {
               "markmap/transformfiletomarkmap",
               "markmap/getmanymarkmaps",
               "markmap/update",
+              "markmap/update/title",
               "markmap/create",
               "markmap/createusingprompt",
               "markmap/createusingfileandprompt",
               "markmap/delete",
               "users/getallusername",
             ],
-            ["POST", "GET", "PUT", "DELETE"],
+            ["POST", "GET", "PUT", "DELETE", "PATCH"],
           ],
         ])
       )

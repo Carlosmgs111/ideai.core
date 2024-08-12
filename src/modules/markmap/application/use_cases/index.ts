@@ -8,6 +8,7 @@ import {
   updateMarkmap,
   createNewMarkmap,
   deleteMarkmap,
+  updateTitle
 } from "./crud";
 
 export {
@@ -18,4 +19,5 @@ export {
   deleteMarkmap,
   createUsingPrompt,
   createUsingFileAndPrompt,
+  updateTitle
 };

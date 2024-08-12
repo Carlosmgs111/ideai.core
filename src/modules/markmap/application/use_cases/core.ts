@@ -117,6 +117,8 @@ export const presetRunPrompt = async (ctx: any) => {
   cuenta las anotaciones, asi sabras que hace cada conjunto de caracteres:
 
   ${markmapExample}
+
+  
   `;
   let title = "";
   const tableName = "markmaps";
@@ -152,8 +154,8 @@ export const presetRunPrompt = async (ctx: any) => {
       return;
     }
     buffer += data;
-    process.stdout.write(`${buffer}`);
     if (buffer.length >= minChunkSize) {
+      process.stdout.write(`${buffer}`);
       SocketService.sockets[clientSocketID].emit(
         `appendToMarkmapText$${uuid}`,
         {
