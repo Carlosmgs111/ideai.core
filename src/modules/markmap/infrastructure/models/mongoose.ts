@@ -2,17 +2,14 @@ import { model, Schema, Document } from "mongoose";
 export interface IMarkmap extends Document {
   uuid: string;
   title: string;
+  text: string;
+  description: string;
   User: string;
-  emitedDate: number;
-  image: string;
-  url: string;
-  tags: String[];
-  emitedAt: number;
   createdAt: number;
   updatedAt: number;
 }
 
-const markmapScheme: any = new Schema({
+const markmapScheme: any = new Schema<IMarkmap>({
   uuid: {
     type: String,
     required: true,
@@ -28,6 +25,11 @@ const markmapScheme: any = new Schema({
   text: {
     type: String,
     required: true,
+    unique: false,
+  },
+  description: {
+    type: String,
+    required: false,
     unique: false,
   },
   User: { type: String, ref: "User" },

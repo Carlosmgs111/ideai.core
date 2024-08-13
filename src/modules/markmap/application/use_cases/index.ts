@@ -5,19 +5,17 @@ import {
 } from "./core";
 import {
   getManyMarkmaps,
-  updateMarkmap,
   createNewMarkmap,
   deleteMarkmap,
-  updateTitle
+  update,
 } from "./crud";
 
 export {
   getManyMarkmaps,
-  updateMarkmap,
   transformFileToMarkmap,
   createNewMarkmap,
   deleteMarkmap,
   createUsingPrompt,
   createUsingFileAndPrompt,
-  updateTitle
+  update,
 };

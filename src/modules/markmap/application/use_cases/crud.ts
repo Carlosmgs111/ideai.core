@@ -3,11 +3,12 @@ import { RepositoryService } from "../../../../config/dependencies";
 /*  */
 
 export const createNewMarkmap = async (ctx: any) => {
-  const { uuid, title, text } = ctx;
+  const { uuid, title, text, description } = ctx;
   const result = await Markmap.createOne(RepositoryService, {
     uuid,
     title,
     text,
+    description,
   });
   if (!result) return { message: "Something went wrong!" };
   return result;
@@ -23,17 +24,6 @@ export const loadMarkmap = async (ctx: any) => {
   return Markmap.load(RepositoryService, { indexation: { uuid } });
 };
 
-export const updateMarkmap = async (ctx: any) => {
-  return new Promise((resolve: any, reject: any) => {
-    const { uuid, text } = ctx;
-    loadMarkmap({ uuid }).then((markmap: any) => {
-      markmap.update(RepositoryService, { text }).then((result: any) => {
-        resolve({ updated: result });
-      });
-    });
-  });
-};
-
 export const deleteMarkmap = async (ctx: any) => {
   return new Promise((resolve, reject) => {
     const { uuid } = ctx;
@@ -45,13 +35,16 @@ export const deleteMarkmap = async (ctx: any) => {
   });
 };
 
-export const updateTitle = async (ctx: any) => {
-  return new Promise((resolve, reject) => {
-    const { uuid, title } = ctx;
+export const update = async (ctx: any) => {
+  return new Promise((resolve: any, reject: any) => {
+    const { uuid, ...attribute } = ctx;
+    const [key, value] = Object.entries(attribute)[0];
     loadMarkmap({ uuid }).then((markmap: any) => {
-      markmap.update(RepositoryService, { title }).then((result: any) => {
-        resolve({ updated: result });
-      });
+      markmap
+        .update(RepositoryService, { [key]: value })
+        .then((result: any) => {
+          resolve({ updated: result });
+        });
     });
   });
 };

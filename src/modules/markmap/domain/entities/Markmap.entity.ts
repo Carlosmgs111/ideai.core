@@ -4,13 +4,15 @@ export class Markmap {
   uuid: string = "";
   title: string = "";
   text: string = "";
+  description: string = "";
   createdAt: number = 0;
   updatedAt: number = 0;
 
-  constructor({ uuid, title, text }: any) {
+  constructor({ uuid, title, text, description }: any) {
     this.uuid = uuid;
     this.title = title;
     this.text = text;
+    this.description = description;
     this.createdAt = new Date().getTime();
     this.updatedAt = this.createdAt;
   }
@@ -38,7 +40,7 @@ export class Markmap {
   static createMany = async (RepositoryService: any, data: any) => {
     const markmapsCreated = await RepositoryService.createMany(
       RepositoryService.entities.Markmap,
-      data.map((markmap: any) => new Markmap({ ...markmap}))
+      data.map((markmap: any) => new Markmap({ ...markmap }))
     );
 
     for (let markmap in markmapsCreated) {

@@ -2,12 +2,11 @@ import { RESTAPIService, apiConfig } from "../../../../config/dependencies";
 import {
   transformFileToMarkmap,
   getManyMarkmaps,
-  updateMarkmap,
   createNewMarkmap,
   deleteMarkmap,
   createUsingPrompt,
   createUsingFileAndPrompt,
-  updateTitle
+  update,
 } from "../../../../modules/markmap/application/use_cases";
 
 const { controllerAdapter } = RESTAPIService;
@@ -21,11 +20,7 @@ export default RESTAPIService.addPath("/markmap", (router: any) => {
       controllerAdapter(createUsingFileAndPrompt)
     )
     .post("/transformfiletomarkmap", controllerAdapter(transformFileToMarkmap))
-    .put("/update", controllerAdapter(updateMarkmap))
-    .patch(
-      "/update/title",
-      controllerAdapter(updateTitle)
-    )
+    .patch("/update", controllerAdapter(update))
     .delete("/delete", controllerAdapter(deleteMarkmap))
     .get("/getmanymarkmaps", controllerAdapter(getManyMarkmaps));
 });

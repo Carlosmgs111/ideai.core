@@ -5,6 +5,11 @@ import { streamText } from "ai";
 import { createOpenAI as createGroq } from "@ai-sdk/openai";
 import config from "../../../../config";
 
+const groq = createGroq({
+  baseURL: "https://api.groq.com/openai/v1",
+  apiKey: config.groqApiKey,
+});
+
 const markmapExample = `
 # Title
 
@@ -54,15 +59,17 @@ code
 \`\`\`.
 
 - Devuelve el resultado todo en español.
-- Cuando se trate de un parrafo, siempre preceder con '- '.
+- Cuando se trate de un parrafo o cualquier otro contenido, siempre preceder con '- '.
 - Elimina todo espacio en el inicio.
+- Generar un resumen ubicado al inicio de la respuesta y entre {{}}.
 - Ignora todo indice de contenido.`;
 
 const prePrompt = `
 Ten presente estos puntos:
-- Cuando se trate de un parrafo, siempre preceder con '- '.
+- Cuando se trate de un parrafo o cualquier otro contenido, siempre preceder con '- '.
 - Elimina todo espacio en el inicio.
 - Asignar un titulo adecuado.
+- Generar un resumen ubicado al inicio de la respuesta y entre {{}}.
 - Buscaras y condensaras toda la informacion que encuentres sobre el tema. 
 `;
 
@@ -118,7 +125,6 @@ export const presetRunPrompt = async (ctx: any) => {
 
   ${markmapExample}
 
-  
   `;
   let title = "";
   const tableName = "markmaps";
@@ -131,7 +137,7 @@ export const presetRunPrompt = async (ctx: any) => {
     text: "",
   });
 
-  let initChunk = "";
+  let titleContainedChunk = "";
   let buffer = "";
   const minChunkSize = 800;
   const onStream = (data: any) => {
@@ -139,14 +145,14 @@ export const presetRunPrompt = async (ctx: any) => {
       text: data,
     });
     if (!title) {
-      initChunk += data;
-      if (initChunk.includes("##")) {
-        title = extractTitle(initChunk).trim();
+      titleContainedChunk += data;
+      if (titleContainedChunk.includes("##")) {
+        title = obtainTitle({ str: titleContainedChunk }).trim();
         SocketService.sockets[clientSocketID].emit(
           `appendToMarkmapText$${uuid}`,
           {
             uuid,
-            text: initChunk,
+            text: titleContainedChunk,
             title,
           }
         );
@@ -175,20 +181,28 @@ export const presetRunPrompt = async (ctx: any) => {
   });
 
   const cachedMarkmap = CachingService.getData(tableName, uuid);
+  const [description, text]: any = await extractDescriptionFromText({
+    text: cachedMarkmap.text,
+  });
   createNewMarkmap({
     uuid,
     title,
-    text: cachedMarkmap.text,
+    text,
+    description,
   });
-  return cachedMarkmap;
+
+  // ? Useful in collaborative environments
+  SocketService.sockets[clientSocketID].emit(`updateMarkmap$${uuid}`, {
+    ...cachedMarkmap,
+    title,
+    description,
+  });
+  return { ...cachedMarkmap, title, description };
 };
 
 export const runPrompt = async (ctx: any) => {
   const { prompt, system_prompt, onStream } = ctx;
-  const groq = createGroq({
-    baseURL: "https://api.groq.com/openai/v1",
-    apiKey: config.groqApiKey,
-  });
+
   const { textStream } = await streamText({
     model: groq("llama-3.1-70b-versatile"),
     system: system_prompt,
@@ -206,10 +220,18 @@ export const extractTextFromPdf = async (ctx: any) => {
   return text;
 };
 
-export const extractTitle = (str: string) => {
+export const obtainTitle = (ctx: any) => {
+  const { str } = ctx;
   const regex = /(?<=#)([\s\S]*?)(?=\n|$)/;
   const match: any = str.match(regex);
   if (!match) return "";
   const title = match[1];
   return title;
+};
+
+export const extractDescriptionFromText = async (ctx: any) => {
+  let { text } = ctx;
+  const description = text.match(/{{(.*?)}}/)[1];
+  text = text.replace(/{{.*?}}/, "");
+  return [description, text];
 };
