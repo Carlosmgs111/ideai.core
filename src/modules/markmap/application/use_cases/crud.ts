@@ -16,7 +16,11 @@ export const createNewMarkmap = async (ctx: any) => {
 
 export const getManyMarkmaps = async (ctx: any) => {
   const { size = 10, page = 0 } = ctx;
-  return await Markmap.findAll(RepositoryService, { size, page });
+  return await Markmap.findAll(RepositoryService, {
+    size,
+    page,
+    orderBy: { updatedAt: -1 },
+  });
 };
 
 export const loadMarkmap = async (ctx: any) => {

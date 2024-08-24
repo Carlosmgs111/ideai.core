@@ -16,6 +16,7 @@ interface options {
   page: number;
   related: [string];
   indexation: object;
+  orderBy: {};
 }
 
 import boom from "@hapi/boom";
@@ -61,9 +62,16 @@ export default class MongooseAdapter /* implements DatabaseAdapterType  */ {
   };
 
   findAll = async (entity: string, options: options) => {
-    const { size = 100, page = 0, related = [] } = options;
+    const {
+      size = 100,
+      page = 0,
+      related = [],
+      orderBy,
+      ...restOfOptions
+    } = options;
     const entities = await this.models[entity]
-      .find(this.adapter(options))
+      .find(this.adapter(restOfOptions))
+      .sort(orderBy)
       .skip(Number(page * size))
       .limit(Number(size))
       .populate(this.getPopulateMap(related));
