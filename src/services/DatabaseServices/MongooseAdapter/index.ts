@@ -12,11 +12,11 @@ interface entities {
 }
 
 interface options {
-  size: number;
-  page: number;
-  related: [string];
-  indexation: object;
-  orderBy: {};
+  size?: number;
+  page?: number;
+  related?: [string];
+  indexation?: object;
+  orderBy?: {};
 }
 
 import boom from "@hapi/boom";
@@ -79,6 +79,12 @@ export default class MongooseAdapter /* implements DatabaseAdapterType  */ {
     return entities.map((e: any) => ({
       ...filterAttrs(e._doc, ["_id", "__v"]),
     }));
+  };
+
+  howManyOf = async (entity: string, options: options = {}) => {
+    return await this.models[entity]
+      .find(this.adapter(options))
+      .countDocuments();
   };
 
   findOne = async (entity: string, options: options) => {

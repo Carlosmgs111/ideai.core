@@ -8,6 +8,7 @@ import {
   createNewMarkmap,
   deleteMarkmap,
   update,
+  getCountOfMarkmaps
 } from "./crud";
 
 export {
@@ -18,4 +19,5 @@ export {
   createUsingPrompt,
   createUsingFileAndPrompt,
   update,
+  getCountOfMarkmaps
 };

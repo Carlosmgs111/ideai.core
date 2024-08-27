@@ -4,7 +4,7 @@ export const Adapters: any = {
   MongooseAdapter,
 };
 
-export const DatabaseService = (adapter: any = Adapters.SequelizeAdapter) => {
+export const DatabaseService = (adapter: any = Adapters.MongooseAdapter) => {
   class DatabaseService extends adapter {
     constructor(props: any) {
       super(props);

@@ -7,6 +7,7 @@ import {
   createUsingPrompt,
   createUsingFileAndPrompt,
   update,
+  getCountOfMarkmaps,
 } from "../../../../modules/markmap/application/use_cases";
 
 const { controllerAdapter } = RESTAPIService;
@@ -22,5 +23,6 @@ export default RESTAPIService.addPath("/markmap", (router: any) => {
     .post("/transformfiletomarkmap", controllerAdapter(transformFileToMarkmap))
     .patch("/update", controllerAdapter(update))
     .delete("/delete", controllerAdapter(deleteMarkmap))
-    .get("/getmanymarkmaps", controllerAdapter(getManyMarkmaps));
+    .get("/getmanymarkmaps", controllerAdapter(getManyMarkmaps))
+    .get("/countofmarkmaps", controllerAdapter(getCountOfMarkmaps));
 });

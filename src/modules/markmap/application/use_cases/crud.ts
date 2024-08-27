@@ -52,3 +52,11 @@ export const update = async (ctx: any) => {
     });
   });
 };
+
+export const getCountOfMarkmaps = async (ctx: any) => {
+  return {
+    totalMarkmaps: await RepositoryService.howManyOf(
+      RepositoryService.entities.Markmap
+    ),
+  };
+};
