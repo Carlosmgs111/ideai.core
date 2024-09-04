@@ -43,7 +43,6 @@ export class User {
   }
 
   static create = async (RepositoryService: any, data: any): Promise<any> => {
-    
     const exist = await RepositoryService.findOne(
       RepositoryService.entities.User,
       {
@@ -98,7 +97,7 @@ export class User {
       RepositoryService.entities.User,
       {
         ...options,
-        credentials: filterAttrs(
+        indexation: filterAttrs(
           getEntityProperties(credentials),
           ["email", "username", "uuid"],
           false

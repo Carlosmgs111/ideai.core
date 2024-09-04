@@ -1,15 +1,19 @@
 import {
-  transformFileToMarkmap,
   createUsingPrompt,
+  transformFileToMarkmap,
   createUsingFileAndPrompt,
 } from "./core";
 import {
+  update,
+  deleteMarkmap,
   getManyMarkmaps,
   createNewMarkmap,
-  deleteMarkmap,
-  update,
-  getCountOfMarkmaps
+  getCountOfMarkmaps,
 } from "./crud";
+import {
+  updateAllMarkmapsWithNewAttributes,
+  associateAllOrphanMarkmapsToSingleUser,
+} from "./__support";
 
 export {
   getManyMarkmaps,
@@ -19,5 +23,7 @@ export {
   createUsingPrompt,
   createUsingFileAndPrompt,
   update,
-  getCountOfMarkmaps
+  getCountOfMarkmaps,
+  updateAllMarkmapsWithNewAttributes,
+  associateAllOrphanMarkmapsToSingleUser,
 };

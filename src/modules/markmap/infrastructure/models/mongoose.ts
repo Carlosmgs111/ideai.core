@@ -3,8 +3,10 @@ export interface IMarkmap extends Document {
   uuid: string;
   title: string;
   text: string;
+  isReferenceable: boolean;
+  isPublic: boolean;
   description: string;
-  User: string;
+  Users: [string];
   createdAt: number;
   updatedAt: number;
 }
@@ -27,12 +29,20 @@ const markmapScheme: any = new Schema<IMarkmap>({
     required: true,
     unique: false,
   },
+  isReferenceable: {
+    type: Boolean,
+    require: true,
+  },
+  isPublic: {
+    type: Boolean,
+    require: true,
+  },
   description: {
     type: String,
     required: false,
     unique: false,
   },
-  User: { type: String, ref: "User" },
+  Users: [{ type: String, ref: "User" }],
   createdAt: {
     type: Number,
     required: true,

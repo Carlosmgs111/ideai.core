@@ -1,4 +1,8 @@
-import { CachingService, SocketService } from "../../../../config/dependencies";
+import {
+  CachingService,
+  RepositoryService,
+  SocketService,
+} from "../../../../config/dependencies";
 import { createNewMarkmap } from "./crud";
 import pdfExtraction from "pdf-extraction";
 import { streamText } from "ai";

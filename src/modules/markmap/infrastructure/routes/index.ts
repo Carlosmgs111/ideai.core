@@ -8,6 +8,8 @@ import {
   createUsingFileAndPrompt,
   update,
   getCountOfMarkmaps,
+  updateAllMarkmapsWithNewAttributes,
+  associateAllOrphanMarkmapsToSingleUser,
 } from "../../../../modules/markmap/application/use_cases";
 
 const { controllerAdapter } = RESTAPIService;
@@ -24,5 +26,13 @@ export default RESTAPIService.addPath("/markmap", (router: any) => {
     .patch("/update", controllerAdapter(update))
     .delete("/delete", controllerAdapter(deleteMarkmap))
     .get("/getmanymarkmaps", controllerAdapter(getManyMarkmaps))
-    .get("/countofmarkmaps", controllerAdapter(getCountOfMarkmaps));
+    .get("/countofmarkmaps", controllerAdapter(getCountOfMarkmaps))
+    .get(
+      "/updateallmarkmapswithnewattributes",
+      controllerAdapter(updateAllMarkmapsWithNewAttributes)
+    )
+    .get(
+      "/associateallorphanmarkmapstosingleuser",
+      controllerAdapter(associateAllOrphanMarkmapsToSingleUser)
+    );
 });

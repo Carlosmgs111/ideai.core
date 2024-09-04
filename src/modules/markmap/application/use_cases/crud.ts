@@ -1,7 +1,6 @@
 import { Markmap } from "../../domain/entities/Markmap.entity";
 import { RepositoryService } from "../../../../config/dependencies";
 /*  */
-
 export const createNewMarkmap = async (ctx: any) => {
   const { uuid, title, text, description } = ctx;
   const result = await Markmap.createOne(RepositoryService, {
@@ -13,7 +12,6 @@ export const createNewMarkmap = async (ctx: any) => {
   if (!result) return { message: "Something went wrong!" };
   return result;
 };
-
 export const getManyMarkmaps = async (ctx: any) => {
   const { size = 10, page = 0 } = ctx;
   return await Markmap.findAll(RepositoryService, {
@@ -22,12 +20,10 @@ export const getManyMarkmaps = async (ctx: any) => {
     orderBy: { updatedAt: -1 },
   });
 };
-
 export const loadMarkmap = async (ctx: any) => {
   const { uuid } = ctx;
   return Markmap.load(RepositoryService, { indexation: { uuid } });
 };
-
 export const deleteMarkmap = async (ctx: any) => {
   return new Promise((resolve, reject) => {
     const { uuid } = ctx;
@@ -38,7 +34,6 @@ export const deleteMarkmap = async (ctx: any) => {
     });
   });
 };
-
 export const update = async (ctx: any) => {
   return new Promise((resolve: any, reject: any) => {
     const { uuid, ...attribute } = ctx;
@@ -52,7 +47,6 @@ export const update = async (ctx: any) => {
     });
   });
 };
-
 export const getCountOfMarkmaps = async (ctx: any) => {
   return {
     totalMarkmaps: await RepositoryService.howManyOf(

@@ -4,15 +4,26 @@ export class Markmap {
   uuid: string = "";
   title: string = "";
   text: string = "";
+  isReferenceable: boolean = true;
+  isPublic: boolean = true;
   description: string = "";
   createdAt: number = 0;
   updatedAt: number = 0;
 
-  constructor({ uuid, title, text, description }: any) {
+  constructor({
+    uuid,
+    title,
+    text,
+    description,
+    isPublic = true,
+    isReferenceable = true,
+  }: any) {
     this.uuid = uuid;
     this.title = title;
     this.text = text;
     this.description = description;
+    this.isPublic = isPublic;
+    this.isReferenceable = isReferenceable
     this.createdAt = new Date().getTime();
     this.updatedAt = this.createdAt;
   }
@@ -25,7 +36,6 @@ export class Markmap {
       RepositoryService.entities.Markmap,
       new Markmap({ ...data })
     );
-
     // await RepositoryService.setOneRelationship2One(
     //   { markmap: { uuid: markmap.uuid } },
     //   [
@@ -78,7 +88,6 @@ export class Markmap {
     );
     return markmaps;
   };
-
   update = async (RepositoryService: any, data: any) => {
     this.updatedAt = new Date().getTime();
     // const {
@@ -113,7 +122,6 @@ export class Markmap {
       { indexation: { uuid: this.uuid } }
     );
   };
-
   remove = async (RepositoryService: any, options: any = {}) => {
     // await RepositoryService.unsetOneRelationship2One(
     //   { markmaps: { uuid: this.uuid } },
