@@ -58,6 +58,7 @@ const config = {
   /*  */
   replicateApiToken: String(process.env.REPLICATE_API_TOKEN || ""),
   groqApiKey: String(process.env.GROQ_API_KEY || ""),
+  groqModel: String(process.env.GROQ_MODEL || ""),
 };
 
 export default config;

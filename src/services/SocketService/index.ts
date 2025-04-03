@@ -23,11 +23,8 @@ export class SocketService {
       },
     });
     this.server.on("connection", (socket: Socket) => {
-      const {
-        handshake: {
-          query: { id },
-        },
-      }: any = socket;
+      const { id }: any = socket;
+      console.log({id})
       console.log("Cliente conectado");
       this.sockets[id] = socket;
       this.setEvents(socket);

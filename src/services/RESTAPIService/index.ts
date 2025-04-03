@@ -42,6 +42,7 @@ export class RESTAPIService {
               "/ws/",
               "users/contact",
               "markmap/getmanymarkmaps",
+              "markmap/transformfiletomarkmap",
               "markmap/update",
               "markmap/update/title",
               "markmap/create",

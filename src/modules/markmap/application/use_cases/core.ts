@@ -1,6 +1,5 @@
 import {
   CachingService,
-  RepositoryService,
   SocketService,
 } from "../../../../config/dependencies";
 import { createNewMarkmap } from "./crud";
@@ -208,7 +207,7 @@ export const runPrompt = async (ctx: any) => {
   const { prompt, system_prompt, onStream } = ctx;
 
   const { textStream } = await streamText({
-    model: groq("llama-3.1-70b-versatile"),
+    model: groq(config.groqModel),
     system: system_prompt,
     prompt,
   });

@@ -12,3 +12,4 @@ RESTAPIService.router.use(
   authRoutes,
   userRoutes
 );
+console.log({RESTAPIService})
